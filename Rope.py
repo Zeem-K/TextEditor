@@ -1,6 +1,7 @@
 from collections import deque
 
-LEAF_LEN = 6
+#Déterminer la taile de chaque 
+LEAF_LEN = 8
 class RopeNode:
     def __init__(self,data):
         self.data = data
@@ -8,11 +9,6 @@ class RopeNode:
         self.right = None
         self.length = len(data) if data else 0
     
-    def height(self,node):
-        if node is None:
-            return 0
-        if node.left or node.right:
-            return max(self.height(node.left),self.height(node.right))
 
 class Rope:
     def __init__(self,data):
@@ -22,7 +18,7 @@ class Rope:
         if not data:
             return None
         if len(data) > LEAF_LEN:
-            mid = len(data) // 2
+            mid = self.findLeafLen(data)
             node = RopeNode(None)
             node.left = self.buildRopeNode(data[:mid])
             node.right = self.buildRopeNode(data[mid:])
@@ -33,9 +29,46 @@ class Rope:
             return node
         return RopeNode(data)
 
+    def findLeafLen(self,data):
+        if(len(data)%2 != 0):
+            return len(data) // 2
+        res = 1
+        for i in range(1,LEAF_LEN+1):
+            if len(data) % i == 0 and i > res:
+                res = i
+        return res
+        
+
+    #Utiliser cette fonction pour le calcul d'équilibre est inefficient car le calcul d'équilbre calul déjà la taille
+    def height_node(self,node):
+        if node is None:
+            return 0
+        else:
+            left_height = self.height_node(node.left)
+            right_height = self.height_node(node.right)
+        return max(left_height,right_height)+1
+    
+    def depth_node(self,node):
+        return self.height_node(node.left) - self.height_node(node.right)
+
     def calculate_length(self,node):
         return node.length if node else 0
     
+    #Si la valeur renvoyée est différent de -1 alors l'arbre est équilbrée
+    def checkBalanced(self,node):
+        if not node:
+            return 0
+        rigthSubTreeHeight = self.checkBalanced(node.right)
+        leftSubTreeHeight = self.checkBalanced(node.left)
+        if (rigthSubTreeHeight == -1):
+            return -1
+        if (leftSubTreeHeight == -1):
+            return -1
+        if(abs(leftSubTreeHeight-rigthSubTreeHeight) > 1):
+            return -1
+        return max(leftSubTreeHeight,rigthSubTreeHeight)+1
+        
+        
 
     # Calacul du poids des neouds parent d'après wikipédia
     # def calculate_length(self, node):
@@ -60,11 +93,12 @@ class Rope:
                 self.print_rope(node.right, indent + "  ")
 
 
+    
 def main():
-   rope_data = "happy_birthday!"
+   rope_data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
    rope = Rope(rope_data)
    rope.print_rope()
-   
+   print(rope.checkBalanced(rope.root))
 
 if __name__ == "__main__":
     main()
