@@ -1,51 +1,51 @@
-import os
+import curses
+from Rope import Rope
+from curses import wrapper
 
 class TextEditor:
-    def __init__(self):
-        self.file_path = ""
-        self.buffer = ""
+    def __init__(self, stdscr):
+        self.rope_editor = Rope("Hello, World!")
+        self.stdscr = stdscr
+        self.cursor_x = 0
+        self.cursor_y = 0
+        self.commands = ["1. Insert", "2. Exit"]
+        self.command_index = 0
+        self.run()
 
-    def load_file(self, file_path):
-        try:
-            with open(file_path, 'r') as file:
-                self.buffer = file.read()
-        except FileNotFoundError:
-            print("File not found.")
+    def insert_text(self, index, text):
+        self.rope_editor.insert(index, text)
 
-    def save_file(self):
-        if not self.file_path:
-            self.file_path = input("Enter file path to save: ")
+    def display_text(self):
+        self.stdscr.clear()
+        text_to_display = self.rope_editor.collectleaves()
+        self.stdscr.addstr(0, 0, text_to_display)
 
-        with open(self.file_path, 'w') as file:
-            file.write(self.buffer)
-        print("File saved.")
+    def display_commands(self):
+        for i, command in enumerate(self.commands):
+            self.stdscr.addstr(curses.LINES-1-i, 0, command)
 
-    def edit_content(self):
-        os.system('clear' if os.name == 'posix' else 'cls')  # Clear the screen (Linux/Windows)
-        print("Simple Text Editor")
-        print("File: {}".format(self.file_path))
-        print("\n" + self.buffer)
+    def run(self):
+        while True:
+            self.stdscr.clear()
 
-        user_input = input("\nCommands: (q)uit, (w)rite, (e)dit > ")
+            self.display_text()
+            self.display_commands()
 
-        if user_input == 'q':
-            return False
-        elif user_input == 'w':
-            self.save_file()
-            input("Press Enter to continue...")
-        elif user_input == 'e':
-            new_content = input("Enter new content:\n")
-            self.buffer = new_content
-        else:
-            print("Invalid command. Press Enter to continue...")
+            self.stdscr.move(self.cursor_y, self.cursor_x)
 
-        return True
-    
-def main():
-    editor = TextEditor()
+            key = self.stdscr.getch()
 
-    while editor.edit_content():
-        pass
+            if key == curses.KEY_DOWN and self.command_index < len(self.commands) - 1:
+                self.command_index += 1
+            elif key == curses.KEY_UP and self.command_index > 0:
+                self.command_index -= 1
+            elif key == curses.KEY_ENTER or key == 10 or key == 13:
+                if self.command_index == 0:
+                    index = int(self.stdscr.getstr().decode())
+                    text_to_insert = self.stdscr.getstr().decode()
+                    self.insert_text(index, text_to_insert)
+                elif self.command_index == 1:
+                    break
 
 if __name__ == "__main__":
-    main()
+    wrapper(TextEditor)

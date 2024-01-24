@@ -113,8 +113,6 @@ class Rope:
                 self.print_rope(node.left, indent + "  ")
                 self.print_rope(node.right, indent + "  ")
 
-
-    
 def main():
    rope_data = "Je suis"
    rope = Rope(rope_data)
