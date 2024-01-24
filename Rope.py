@@ -13,12 +13,13 @@ class RopeNode:
 class Rope:
     def __init__(self,data):
         self.root = self.buildRopeNode(data)
-            
+    
+    #Olog N)
     def buildRopeNode(self,data):
         if not data:
             return None
         if len(data) > LEAF_LEN:
-            mid = self.findLeafLen(data)
+            mid = len(data) // 2
             node = RopeNode(None)
             node.left = self.buildRopeNode(data[:mid])
             node.right = self.buildRopeNode(data[mid:])
@@ -67,21 +68,41 @@ class Rope:
         if(abs(leftSubTreeHeight-rigthSubTreeHeight) > 1):
             return -1
         return max(leftSubTreeHeight,rigthSubTreeHeight)+1
+    
+    #Complexité en temps = O(N) N étant le nombre de feuille
+    def collectleaves(self):
+        leaf_data = []
+        def dfs(node):
+            if not node.left and not node.right:  # Check if the node is a leaf
+                leaf_data.append(node.data)
+            if node.left:
+                dfs(node.left)
+            if node.right:
+                dfs(node.right)
+        dfs(self.root)
         
-        
+        return ''.join(leaf_data)
+    
+    def insert(self,idx,data):
+        leaves = self.collectleaves()
+        new_data = leaves[:idx] + data + leaves[idx:]
+        self.root = self.buildRopeNode(new_data)
 
-    # Calacul du poids des neouds parent d'après wikipédia
-    # def calculate_length(self, node):
-    #     if node is None:
-    #         return 0
-    #     if node.left is None and node.right is None:
-    #         return node.length
-        
-    #     left_subtree_sum = self.calculate_length(node.left)
-    #     right_subtree_sum = self.calculate_length(node.right)
+    def delete(self,start,length):
+        leaves = self.collectleaves()
+        new_data = leaves[:length] + leaves[start:]
+        self.root = self.buildRopeNode(new_data)
 
-    #     return left_subtree_sum + right_subtree_sum
-        
+    def concatRope(self,rope):
+        if rope.root:
+            temphead = RopeNode(None)
+            left_node = self.root
+            self.root = temphead
+            temphead.length = left_node.length + rope.root.length
+            temphead.left = left_node
+            temphead.right = rope.root
+            new_rope = self.buildRopeNode(self.collectleaves())
+            self.root = new_rope
             
     def print_rope(self, node=None, indent=""):
         if not node:
@@ -95,10 +116,9 @@ class Rope:
 
     
 def main():
-   rope_data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+   rope_data = "Je suis"
    rope = Rope(rope_data)
-   rope.print_rope()
-   print(rope.checkBalanced(rope.root))
+   print(rope.collectleaves())
 
 if __name__ == "__main__":
     main()
