@@ -70,6 +70,7 @@ class Rope:
         return max(leftSubTreeHeight,rigthSubTreeHeight)+1
     
     #Complexité en temps = O(N) N étant le nombre de feuille
+    #On essaye d'améliorer ça
     def collectleaves(self):
         leaf_data = []
         def dfs(node):
@@ -83,6 +84,9 @@ class Rope:
         
         return ''.join(leaf_data)
     
+    def findleaves(self):
+        pass
+    
     def insert(self,idx,data):
         leaves = self.collectleaves()
         new_data = leaves[:idx] + data + leaves[idx:]
@@ -93,6 +97,10 @@ class Rope:
         new_data = leaves[:length] + leaves[start:]
         self.root = self.buildRopeNode(new_data)
 
+    def index(self,index):
+        leaves = self.collectleaves()
+        return leaves[index]
+    
     def concatRope(self,rope):
         if rope.root:
             temphead = RopeNode(None)
