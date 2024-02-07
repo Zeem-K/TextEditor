@@ -19,18 +19,18 @@ class TestRopeMethods(unittest.TestCase):
         self.assertEqual(result, expected_result, "Insertion did not produce the expected result.")
 
     def test_delete(self):
-        rope_data = "Je suis"
+        rope_data = "Je suis content"
         rope = Rope(rope_data)
-        rope.delete(3, 5)
+        rope.delete(3, 7)
         result = rope.collectleaves()
-        expected_result = "Je"
+        expected_result = "Je content"
         self.assertEqual(result, expected_result, "Deletion did not produce the expected result.")
 
     def test_index(self):
         rope_data = "Je suis"
         rope = Rope(rope_data)
         result = rope.index(3)
-        expected_result = " "
+        expected_result = "s"
         self.assertEqual(result, expected_result, "Indexing did not produce the expected result.")
 
     def test_concatRope(self):

@@ -89,12 +89,12 @@ class Rope:
     
     def insert(self,idx,data):
         leaves = self.collectleaves()
-        new_data = leaves[:idx] + data + leaves[idx:]
+        new_data = leaves[:idx-1] + data + leaves[idx-1:]
         self.root = self.buildRopeNode(new_data)
 
     def delete(self,start,length):
         leaves = self.collectleaves()
-        new_data = leaves[:length] + leaves[start:]
+        new_data = leaves[:start] + leaves[length+1:]
         self.root = self.buildRopeNode(new_data)
 
     def index(self,index):
