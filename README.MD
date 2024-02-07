@@ -1,7 +1,3 @@
-Bien sûr, je serais ravi de vous aider à rédiger un README pour votre éditeur de texte utilisant la structure de données "rope". Voici un exemple de README que vous pourriez utiliser :
-
----
-
 # Éditeur de Texte avec Rope Data Structure
 
 ## Description
@@ -47,4 +43,4 @@ Les avantages de la structure de données "rope" par rapport à d'autres structu
 ## Contributeurs
 
 - [Lateef Oladimeji Kazeem](https://github.com/votre-utilisateur)
-- [Autre Contributeur](https://github.com/autre-contributeur)
+- [Alexis Cnockaert](https://github.com/autre-contributeur)
