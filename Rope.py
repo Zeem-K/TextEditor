@@ -12,7 +12,9 @@ class RopeNode:
 
 class Rope:
     def __init__(self,data):
-        self.root = self.buildRopeNode(data)
+        self.root = RopeNode(None)
+        self.root.length = len(data)
+        self.root.left = self.buildRopeNode(data)
     
     #Olog N)
     def buildRopeNode(self,data):
@@ -26,7 +28,7 @@ class Rope:
             #Poids de chaque noeud vaut la somme des feuilles de son sous arbre gauche (D'après wikipédia)
             # node.length  = self.calculate_length(node.left)
             node.length = self.calculate_length(node.left)
-            node.length += self.calculate_length(node.right)
+            # node.length += self.calculate_length(node.right)
             return node
         return RopeNode(data)
 
@@ -83,6 +85,7 @@ class Rope:
         dfs(self.root)
         
         return ''.join(leaf_data)
+
     
     def findleaves(self):
         pass
@@ -122,9 +125,11 @@ class Rope:
                 self.print_rope(node.right, indent + "  ")
 
 def main():
-   rope_data = "Je suis"
+   rope_data = "Hello_my_name_is_Simon"
    rope = Rope(rope_data)
-   print(rope.collectleaves())
+   print(rope.root.length)
+   rope.print_rope()
+   rope.collectleaves()
 
 if __name__ == "__main__":
     main()
