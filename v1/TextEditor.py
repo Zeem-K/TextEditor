@@ -4,7 +4,7 @@ class TextEditor:
     def __init__(self, stdscr):
         self.stdscr = stdscr
         self.top_content = "Top Content"
-        self.bottom_content = "^Q. Exit"
+        self.bottom_content = "q. Exit"
         self.text_editor = Rope("\nHello World\nJ'ai dit tout va bien\nquoicoucou\naaaa")
         self.cursor_x = 0
         self.cursor_y = 0
@@ -23,7 +23,6 @@ class TextEditor:
 
     def display_cursor(self):
         self.stdscr.move(self.cursor_y+1, self.cursor_x)
-    
     
     def handleDown(self):
         text = self.text_editor.collectleaves()
@@ -98,7 +97,10 @@ class TextEditor:
             key = self.stdscr.getch()
             self.handle_cursor_movement(key)
             if key == ord('q'):
-                break    
+                break
+                
+                
+
 
 if __name__ == "__main__":
     curses.wrapper(TextEditor)
