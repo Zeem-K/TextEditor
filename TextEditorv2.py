@@ -90,6 +90,7 @@ class TextEditor:
             self.handleLeft()
 
     def run(self):
+        self.stdscr.nodelay(True)
         while True:
             self.display_top_content()
             self.display_main_content()
@@ -97,7 +98,7 @@ class TextEditor:
             self.display_cursor()
             key = self.stdscr.getch()
             self.handle_cursor_movement(key)
-            if key == ord('q'):
+            if key == 17:
                 break    
 
 if __name__ == "__main__":
