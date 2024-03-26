@@ -1,11 +1,12 @@
 import curses
+import curses.ascii
 from Rope import Rope
 class TextEditor:
     def __init__(self, stdscr):
         self.stdscr = stdscr
         self.top_content = "Top Content"
         self.bottom_content = "^Q. Exit"
-        self.text_editor = Rope("\nHello World\nJ'ai dit tout va bien\nquoicoucou\naaaa")
+        self.text_editor = Rope("\n")
         self.cursor_x = 0
         self.cursor_y = 0
         self.cursor_position = 0
@@ -57,7 +58,7 @@ class TextEditor:
             self.cursor_y -= 1
                 
     def handleRight(self):
-        if self.text_editor.index(self.cursor_position+1) == "\n" and self.cursor_position != 0:
+        if self.text_editor.index(self.cursor_position) == "\n" and self.cursor_position != 0:
             self.cursor_y +=1
             self.cursor_x = 0
             self.cursor_position+=1
@@ -77,8 +78,16 @@ class TextEditor:
             else: 
                 self.cursor_x -= 1
                 self.cursor_position -=1
+        
+    def insert_character(self,char):
+        self.text_editor.insert(self.cursor_position+2,char)
+        self.handleRight()
+    
+    def delete_character(self):
+        self.text_editor.delete(self.cursor_position,1)
+        self.handleLeft()
 
-    def handle_cursor_movement(self,key):
+    def handle_movement(self,key):
         text = self.text_editor.collectleaves()
         if key == curses.KEY_DOWN and self.cursor_position < len(text)-1:
             self.handleDown()
@@ -88,18 +97,25 @@ class TextEditor:
             self.handleRight()
         elif key == curses.KEY_LEFT:
             self.handleLeft()
+        elif key == curses.KEY_BACKSPACE:
+            self.delete_character()
+        elif curses.ascii.isprint(key):
+            self.insert_character(chr(key))
 
     def run(self):
         self.stdscr.nodelay(True)
         while True:
+            self.stdscr.erase()
             self.display_top_content()
             self.display_main_content()
             self.display_bottom_content()
             self.display_cursor()
+            self.stdscr.refresh()
             key = self.stdscr.getch()
-            self.handle_cursor_movement(key)
+            self.handle_movement(key)
+
             if key == 17:
-                break    
+                break
 
 if __name__ == "__main__":
     curses.wrapper(TextEditor)
