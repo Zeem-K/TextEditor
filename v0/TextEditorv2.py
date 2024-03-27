@@ -1,12 +1,12 @@
 import curses
 import curses.ascii
-from Rope import Rope
+from v0.Rope import Rope
 class TextEditor:
     def __init__(self, stdscr):
         self.stdscr = stdscr
         self.top_content = "Top Content"
         self.bottom_content = "^Q. Exit"
-        self.text_editor = Rope("\nBonjour")
+        self.text_editor = Rope("Bonjour\n")
         self.cursor_x = 0
         self.cursor_y = 0
         self.cursor_position = 0
@@ -20,14 +20,14 @@ class TextEditor:
         self.stdscr.addstr(curses.LINES - 1, 0, self.bottom_content.ljust(cols - 1))
 
     def display_main_content(self):
-        self.stdscr.addstr(self.text_editor.report())
+        self.stdscr.addstr(self.text_editor.collectleaves())
 
     def display_cursor(self):
         self.stdscr.move(self.cursor_y+1, self.cursor_x)
     
     
     def handleDown(self):
-        text =self.text_editor.report()
+        text = self.text_editor.collectleaves()
         find = text.find("\n",self.cursor_position+1,len(text))
         find2 = text.find("\n",find+1,len(text))
         if(self.cursor_y+1 == text.count("\n") and self.cursor_position < len(text)-1):
@@ -44,10 +44,10 @@ class TextEditor:
             self.cursor_y += 1
 
     def handleUp(self):
-        text =self.text_editor.report()
+        text = self.text_editor.collectleaves()
         find = text.rfind("\n",0,self.cursor_position+1)
         find2 = text.rfind("\n",0,find-1)
-        if self.cursor_y == 1 and self.text_editor.get_character_at_index(self.cursor_position) == "\n" :
+        if self.cursor_y == 1 and self.text_editor.index(self.cursor_position) == "\n" :
             self.cursor_position = 0
             self.cursor_y -= 1
         else :
@@ -58,20 +58,19 @@ class TextEditor:
             self.cursor_y -= 1
                 
     def handleRight(self):
-        if self.text_editor.get_character_at_index(self.cursor_position) == "\n" and self.cursor_position != 0:
+        if self.text_editor.index(self.cursor_position) == "\n" and self.cursor_position != 0:
             self.cursor_y +=1
             self.cursor_x = 0
             self.cursor_position+=1
         else:
             self.cursor_position+=1
             self.cursor_x +=1
-  
 
     def handleLeft(self):
-        text =self.text_editor.report()
+        text = self.text_editor.collectleaves()
         find = text.rfind("\n",0,self.cursor_position+1)
         find2 = text.rfind("\n",0,find-1)
-        if self.cursor_position > 0:
+        if self.cursor_position >0:
             if self.cursor_position == find and self.cursor_position != 1:
                 self.cursor_position -=1
                 self.cursor_y -= 1
@@ -79,18 +78,17 @@ class TextEditor:
             else: 
                 self.cursor_x -= 1
                 self.cursor_position -=1
-    
+        
     def insert_character(self,char):
-        self.text_editor.insert(self.cursor_position+2,char)
+        self.text_editor.insert(self.cursor_position,char)
         self.handleRight()
     
-
     def delete_character(self):
-        self.text_editor.delete(self.cursor_position,1)
+        self.text_editor.delete(self.cursor_position-1,1)
         self.handleLeft()
 
     def handle_movement(self,key):
-        text =self.text_editor.report()
+        text = self.text_editor.collectleaves()
         if key == curses.KEY_DOWN and self.cursor_position < len(text)-1:
             self.handleDown()
         elif key == curses.KEY_UP and self.cursor_y > 0:
@@ -99,7 +97,7 @@ class TextEditor:
             self.handleRight()
         elif key == curses.KEY_LEFT:
             self.handleLeft()
-        elif key == curses.KEY_BACKSPACE and self.cursor_position > 0:
+        elif key == curses.KEY_BACKSPACE:
             self.delete_character()
         elif curses.ascii.isprint(key):
             self.insert_character(chr(key))

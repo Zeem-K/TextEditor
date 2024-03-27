@@ -1,5 +1,5 @@
 import pytest
-from Rope import Rope  # Adjust the import based on your Rope class location
+from v0.Rope import Rope  # Adjust the import based on your Rope class location
 
 # Test the creation of a Rope and basic reporting
 def test_rope_creation_and_basic_reporting():

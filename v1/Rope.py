@@ -1,5 +1,5 @@
 from RopeNode import RopeNode
-
+import math
 class Rope:
     def __init__(self, string=""):
         self.root = RopeNode(string) if string else None
@@ -12,6 +12,27 @@ class Rope:
         new_root.right = rope2.root
         new_root.weight = self._get_weight(rope1.root)
         self.root = new_root
+    
+    def get_character_at_index(self, index):
+        """Return the character at the specified index."""
+        # self._validate_index(index)
+        return self._get_character_at_index(self.root, index)
+
+    def _get_character_at_index(self, node, index):
+        """Recursively find the character at the specified index."""
+        if not node:
+            return None
+
+        if node.data:  # Leaf node
+            if 0 <= index < len(node.data):
+                return node.data[index]
+            else:
+                return None
+        if index < node.weight:
+            return self._get_character_at_index(node.left, index)
+        else:
+            return self._get_character_at_index(node.right, index - node.weight)
+
 
     def _get_weight(self, node):
         """Utility function to calculate weight of a subtree."""
@@ -24,7 +45,7 @@ class Rope:
 
     def _validate_index(self, index, allow_end=False):
         """Check if the index is within the bounds of the rope."""
-        max_index = self._get_weight(self.root) + (1 if allow_end else 0)
+        max_index = len(self.report()) + (1 if allow_end else 0)
         if index < 0 or index > max_index:
             raise IndexError("Index out of bounds")
 
@@ -45,7 +66,6 @@ class Rope:
         new_root.weight = self._get_weight(left_node)
     
         return new_root
-
 
     def insert(self, index, string):
         """Insert a string at the specified position."""
@@ -89,7 +109,7 @@ class Rope:
             return  # No operation if length is non-positive
         
         # Adjust the end index if it exceeds the rope's bounds
-        total_length = self._get_weight(self.root)
+        total_length = len(self.report())
         end_index = min(start_index + length, total_length)
 
         left_rope, temp_rope = self._split(self.root, start_index)
@@ -98,7 +118,7 @@ class Rope:
         self.root = self._concatenate_nodes(left_rope, right_rope)
 
 
-    def report(self, start_index, end_index):
+    def report(self):
         def collect_strings(node, start, end, path, index=0):
             if not node or index >= end:
                 return index
@@ -117,7 +137,29 @@ class Rope:
                 return index
 
         path = []
-        collect_strings(self.root, start_index, end_index, path)
+        collect_strings(self.root,0,math.inf, path)
         return ''.join(path)
+
+
+if __name__ == "__main__":
+    rope = Rope("Hello_my_name_is_Simon")
+    print(rope.report())
+    # print(len(rope.report()))
+    # rope.insert(22,"_Ta mere la pute")
+    # print(len(rope.report()))
+    # print(rope.report())
+    # rope.delete(39,2)
+    print(len(rope.report()))
+    # print(rope.root.weight)
+    rope.delete(10,5)
+    print(rope.report())
+    res = "DE"
+    print(res[:0])
+    print(res[0:])
+
+
+
+
+
 
 
