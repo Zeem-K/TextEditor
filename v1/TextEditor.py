@@ -4,9 +4,9 @@ from Rope import Rope
 class TextEditor:
     def __init__(self, stdscr):
         self.stdscr = stdscr
-        self.top_content = "Top Content"
+        self.top_content = "Top Content\n"
         self.bottom_content = "^Q. Exit"
-        self.text_editor = Rope("\nBonjour")
+        self.text_editor = Rope("Bonjour\nTeststeds\n")
         self.cursor_x = 0
         self.cursor_y = 0
         self.cursor_position = 0
@@ -24,8 +24,7 @@ class TextEditor:
 
     def display_cursor(self):
         self.stdscr.move(self.cursor_y+1, self.cursor_x)
-    
-    
+     
     def handleDown(self):
         text =self.text_editor.report()
         find = text.find("\n",self.cursor_position+1,len(text))
@@ -63,10 +62,9 @@ class TextEditor:
             self.cursor_x = 0
             self.cursor_position+=1
         else:
-            self.cursor_position+=1
-            self.cursor_x +=1
+            self.cursor_position += 1
+            self.cursor_x += 1
   
-
     def handleLeft(self):
         text =self.text_editor.report()
         find = text.rfind("\n",0,self.cursor_position+1)
@@ -81,12 +79,11 @@ class TextEditor:
                 self.cursor_position -=1
     
     def insert_character(self,char):
-        self.text_editor.insert(self.cursor_position+2,char)
+        self.text_editor.insert(self.cursor_position,char)
         self.handleRight()
     
-
     def delete_character(self):
-        self.text_editor.delete(self.cursor_position,1)
+        self.text_editor.delete(self.cursor_position-1,1)
         self.handleLeft()
 
     def handle_movement(self,key):
@@ -95,7 +92,7 @@ class TextEditor:
             self.handleDown()
         elif key == curses.KEY_UP and self.cursor_y > 0:
             self.handleUp()
-        elif key == curses.KEY_RIGHT and self.cursor_position < len(text)-1:
+        elif key == curses.KEY_RIGHT and self.cursor_position < len(text):
             self.handleRight()
         elif key == curses.KEY_LEFT:
             self.handleLeft()
