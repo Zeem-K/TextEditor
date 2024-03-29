@@ -51,6 +51,7 @@ class Rope:
 
 
     def _concatenate_nodes(self, left_node, right_node):
+        """Concatenates two ropes"""
         if not left_node:
             return right_node
         if not right_node:
@@ -104,6 +105,7 @@ class Rope:
         return (left, right)
 
     def delete(self, start_index, length):
+        """Deletes a portion of the rope given a certain start and length"""
         self._validate_index(start_index)
         if length <= 0:
             return  # No operation if length is non-positive
@@ -118,6 +120,7 @@ class Rope:
         self.root = self._concatenate_nodes(left_rope, right_rope)
 
     def report(self):
+        """Returns a string representation of the rope"""
         # almost the same thing as collect leaves
         def collect_strings(node, start, end, path, index=0):
             if not node or index >= end:
@@ -139,7 +142,7 @@ class Rope:
         return ''.join(path)
     
     def print_tree(self, node=None, prefix="", is_last=True):
-        """Print the tree structure with branches."""
+        """Prints the rope in a tree like display"""
         if node is None:
             node = self.root
         
@@ -161,6 +164,7 @@ class Rope:
                 self.print_tree(node=child, prefix=child_prefix, is_last=is_last)
         
     def collect_leaves(self, node=None, leaves=None):
+        """Returns a list of all data in leaf nodes"""
         if leaves is None:
             leaves = []
         if node is None:
@@ -176,12 +180,14 @@ class Rope:
         return leaves
     
     def generate_fibonacci(self,n):
+        """Generates a fibonnaci sequence"""
         fib = [0, 1]
         for i in range(2, n + 1):
             fib.append(fib[-1] + fib[-2])
         return fib
 
     def depth(self, node=None):
+        """Calculates the depth of the rope"""
         if not node:
             return 0
         return 1 + max(self.depth(node.left), self.depth(node.right))
@@ -193,7 +199,7 @@ class Rope:
 
         # Calculate the depth of the current node (or the root, if no node is provided).
         node_depth = self.depth(node)
-        # 2048 is a arbitrary number
+        # 2048 is a arbitrary number that covers most depth for this text editor
         fibonacci_sequence = self.generate_fibonacci(2048)
         # Check if the depth of the node exceeds the bounds set by our Fibonacci sequence.
         # If it does, the rope is considered unbalanced due to excessive depth.
@@ -202,9 +208,7 @@ class Rope:
 
         # Determines if the weight of the subtree rooted at the current node meets or exceeds
         # the value in the Fibonacci sequence at the position of "node depth + 2". This check
-        # ensures that the tree's structure is not too deep relative to its weight, a condition
-        # indicative of a balanced binary tree. If the weight is less than the Fibonacci value,
-        # the tree is considered unbalanced otherwise, it is balanced.
+        # ensures that the tree's structure is not too deep relative to its weight, a condition indicative of a balanced binary tree. If the weight is less than the Fibonacci value, the tree is considered unbalanced otherwise, it is balanced.
         return fibonacci_sequence[node_depth + 2] <= self._get_weight(node)
     
     def merge(self, leaves, start=0, end=None):
@@ -236,7 +240,7 @@ if __name__ == "__main__":
     rope.insert(2,"a")
     rope.insert(3,"b")
     rope.insert(4,"c")
-    rope.insert(9,"Je suis ta mere")
+    rope.insert(9,"Je suis ton père")
     rope.insert(24,'YYY4FF')
     rope.insert(17,'test')
     rope.print_tree()
