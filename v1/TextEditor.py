@@ -26,35 +26,26 @@ class TextEditor:
         self.stdscr.move(self.cursor_y+1, self.cursor_x)
      
     def handleDown(self):
-        text =self.text_editor.report()
-        find = text.find("\n",self.cursor_position+1,len(text))
-        find2 = text.find("\n",find+1,len(text))
-        if(self.cursor_y+1 == text.count("\n") and self.cursor_position < len(text)-1):
-            self.cursor_x += (len(text)-1-self.cursor_position)
-            self.cursor_position += (len(text)-1-self.cursor_position)
-        else : 
-            if find2 == -1 :
-                if len(text)- find < self.cursor_x+1 :
-                    self.cursor_x = (len(text) -find)-1
-            elif find2-find < self.cursor_x+1:
-                self.cursor_x = (find2 -find)-1
-            self.cursor_position += find - self.cursor_position
-            self.cursor_position += self.cursor_x
+        text = self.text_editor.report()
+        lines = text.split('\n')
+        if self.cursor_y + 1 < len(lines):
             self.cursor_y += 1
+            next_line_length = len(lines[self.cursor_y])
+            # Adjust cursor_x to not exceed the next line's length, subtracting 1 to convert count to index
+            self.cursor_x = min(self.cursor_x, next_line_length - 1 if next_line_length > 0 else 0)
+            # Update cursor_position based on the new cursor_y and cursor_x
+            self.cursor_position = sum(len(line) + 1 for line in lines[:self.cursor_y]) + self.cursor_x
 
     def handleUp(self):
-        text =self.text_editor.report()
-        find = text.rfind("\n",0,self.cursor_position+1)
-        find2 = text.rfind("\n",0,find-1)
-        if self.cursor_y == 1 and self.text_editor.get_character_at_index(self.cursor_position) == "\n" :
-            self.cursor_position = 0
+        if self.cursor_y > 0:
+            text = self.text_editor.report()
+            lines = text.split('\n')
             self.cursor_y -= 1
-        else :
-            if find-find2 < self.cursor_x+1:
-                self.cursor_x = (find -find2)-1
-            self.cursor_position = find2
-            self.cursor_position += self.cursor_x
-            self.cursor_y -= 1
+            prev_line_length = len(lines[self.cursor_y])
+            # Adjust cursor_x to not exceed the previous line's length, subtracting 1 to convert count to index
+            self.cursor_x = min(self.cursor_x, prev_line_length - 1 if prev_line_length > 0 else 0)
+            # Update cursor_position based on the new cursor_y and cursor_x
+            self.cursor_position = sum(len(line) + 1 for line in lines[:self.cursor_y]) + self.cursor_x
                 
     def handleRight(self):
         if self.text_editor.get_character_at_index(self.cursor_position) == "\n" and self.cursor_position != 0:
@@ -65,29 +56,38 @@ class TextEditor:
             self.cursor_position += 1
             self.cursor_x += 1
   
-    def handleLeft(self):
+    def handleLeft(self,isNewline=False):
         text =self.text_editor.report()
-        first_nl = text.rfind("\n",0,self.cursor_position)
-        second_nl = text.rfind("\n",0,first_nl)
-        if self.cursor_position - 1 == first_nl:
+        if isNewline:
+            res = text.rfind("\n",0,self.cursor_position-1)
+            self.cursor_x = len(text[res+1:self.cursor_position-1])
             self.cursor_position -=1
             self.cursor_y -= 1
-            self.cursor_x = len(text[second_nl+1:first_nl])
-        else: 
+        else:
             self.cursor_x -= 1
             self.cursor_position -=1
 
     def handleEnter(self):
         self.insert_character("\n")
-        
+    
     def insert_character(self,char):
+        max_y, max_x = self.stdscr.getmaxyx()
+        text =self.text_editor.report()
+        res = text.find("\n",self.cursor_position)
+        if res+1 == max_x:
+            self.cursor_y += 1
+            self.cursor_x = 0
+            self.cursor_position += 1
         self.text_editor.insert(self.cursor_position,char)
         self.handleRight()
     
     def delete_character(self):
         if self.text_editor.get_character_at_index(self.cursor_position - 1) == "\n":
-                self.handleLeft()
+                self.handleLeft(True)
                 self.text_editor.delete(self.cursor_position,1)
+        if self.text_editor.get_character_at_index(self.cursor_position) == "\n":
+                self.text_editor.delete(self.cursor_position-1,1)
+                self.handleLeft()
         else:
             self.text_editor.delete(self.cursor_position-1,1)
             self.handleLeft()
@@ -101,7 +101,8 @@ class TextEditor:
         elif key == curses.KEY_RIGHT and self.cursor_position < len(text):
             self.handleRight()
         elif key == curses.KEY_LEFT and self.cursor_position > 0:
-            self.handleLeft()
+            if self.text_editor.get_character_at_index(self.cursor_position - 1) == "\n": self.handleLeft(True)
+            else: self.handleLeft()
         elif (key == curses.KEY_ENTER or key == ord('\n') or key == ord('\r')) and self.cursor_position > 0:
             self.handleEnter()
         elif key == curses.KEY_BACKSPACE and self.cursor_position > 0:
@@ -120,7 +121,7 @@ class TextEditor:
             self.stdscr.refresh()
             key = self.stdscr.getch()
             self.handle_movement(key)
-
+            
             if key == 17:
                 break
 
