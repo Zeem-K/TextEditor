@@ -28,6 +28,3 @@ L'utilisation de la suite de Fibonacci dans la méthode isBalanced permet d'éva
 Je l'utilse uniquement pour l'insertion et pas pour la suppression
 
 ## Contributeurs
-
-- [Lateef Oladimeji Kazeem](https://github.com/votre-utilisateur)
-- [Alexis Cnockaert](https://github.com/autre-contributeur)

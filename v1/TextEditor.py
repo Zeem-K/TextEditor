@@ -6,10 +6,11 @@ class TextEditor:
         self.stdscr = stdscr
         self.top_content = "Top Content\n"
         self.bottom_content = "^Q. Exit"
-        self.text_editor = Rope("ABC\nEFG\nH")
+        self.text_editor = Rope("Bonjour\n")
         self.cursor_x = 0
         self.cursor_y = 0
         self.cursor_position = 0
+        self.scroll_pos = 0
         self.run()
         
     def display_top_content(self):
@@ -71,26 +72,27 @@ class TextEditor:
         self.insert_character("\n")
     
     def insert_character(self,char):
-        max_y, max_x = self.stdscr.getmaxyx()
-        text =self.text_editor.report()
-        res = text.find("\n",self.cursor_position)
-        if res+1 == max_x:
-            self.cursor_y += 1
-            self.cursor_x = 0
-            self.cursor_position += 1
+        _, max_x = self.stdscr.getmaxyx()
+        if self.cursor_x  == max_x - 1:
+            if self.text_editor.get_character_at_index(self.cursor_position) != "\n":
+                self.text_editor.insert(self.cursor_position,"\n")
+            self.handleRight()
         self.text_editor.insert(self.cursor_position,char)
         self.handleRight()
     
     def delete_character(self):
-        if self.text_editor.get_character_at_index(self.cursor_position - 1) == "\n":
-                self.handleLeft(True)
-                self.text_editor.delete(self.cursor_position,1)
-        if self.text_editor.get_character_at_index(self.cursor_position) == "\n":
-                self.text_editor.delete(self.cursor_position-1,1)
-                self.handleLeft()
-        else:
-            self.text_editor.delete(self.cursor_position-1,1)
-            self.handleLeft()
+        char_to_delete = self.text_editor.get_character_at_index(self.cursor_position - 1)
+        # Delete the character before the cursor in the rope
+        self.text_editor.delete(self.cursor_position - 1, 1)
+        self.handleLeft()  # Move cursor left to reflect deletion
+
+        # Additional handling if deleting a newline character
+        if char_to_delete == "\n":
+            # Adjust cursor_x and cursor_y if we've deleted a newline character
+            self.cursor_y -= 1
+            # Find the new cursor_x position at the end of the now-extended line
+            line_start = self.text_editor.report().rfind("\n", 0, self.cursor_position - 1)
+            self.cursor_x = (self.cursor_position - line_start - 1) if line_start != -1 else self.cursor_position
 
     def handle_movement(self,key):
         text =self.text_editor.report()
