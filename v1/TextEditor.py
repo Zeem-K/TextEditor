@@ -1,16 +1,26 @@
 import curses
 import curses.ascii
+import sys
 from Rope import Rope
 class TextEditor:
-    def __init__(self, stdscr):
+    def __init__(self, stdscr, filename = None):
         self.stdscr = stdscr
         self.top_content = "Top Content\n"
         self.bottom_content = "^Q. Exit"
-        self.text_editor = Rope("Bonjour\n")
+        self.text_editor = Rope("")
+        self.filename = filename
         self.cursor_x = 0
         self.cursor_y = 0
         self.cursor_position = 0
         self.scroll_pos = 0
+        if filename:
+            try:
+                with open(filename, 'r') as file:
+                    self.text_editor = Rope(file.read())
+            except IOError as e:
+                # Handle file opening errors
+                self.bottom_content = f"Error: {e}. ^Q. Exit"
+                return
         self.run()
         
     def display_top_content(self):
@@ -111,6 +121,13 @@ class TextEditor:
             self.delete_character()
         elif curses.ascii.isprint(key):
             self.insert_character(chr(key))
+    def save_file(self, filename):
+        try:
+            with open(filename, 'w') as file:
+                file.write(self.text_editor.report())
+            self.bottom_content = f"File saved as {filename}. ^Q. Exit"
+        except IOError as e:
+            self.bottom_content = f"Error: {e}. ^Q. Exit"
 
     def run(self):
         self.stdscr.nodelay(True)
@@ -124,8 +141,15 @@ class TextEditor:
             key = self.stdscr.getch()
             self.handle_movement(key)
             
-            if key == 17:
+            if key == ord('q') and curses.ascii.ctrl('q'):
                 break
 
+            if key == ord('s') and curses.ascii.ctrl('s'):
+                self.save_file(self.filename)
+
+
 if __name__ == "__main__":
-    curses.wrapper(TextEditor)
+    if len(sys.argv) > 1:
+        curses.wrapper(TextEditor, sys.argv[1])
+    else:
+        curses.wrapper(TextEditor)
